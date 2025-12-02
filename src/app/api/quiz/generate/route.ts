@@ -1,122 +1,56 @@
 // src/app/api/quiz/generate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { openai } from '@/lib/openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SYSTEM_PROMPTS, createQuizPrompt } from '@/lib/prompts';
+
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerSupabaseClient();
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
-    const { 
-      notebook_id, 
-      num_questions = 5, 
-      question_types = ['mcq', 'long_answer'] 
-    } = body;
+    const { topic, difficulty, questionCount } = body;
 
-    if (!notebook_id) {
-      return NextResponse.json(
-        { error: 'notebook_id is required' },
-        { status: 400 }
-      );
+    if (!topic) {
+      return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
     }
 
-    // Fetch notes from the notebook
-    const { data: notes, error: notesError } = await supabase
-      .from('notes')
-      .select('content, title')
-      .eq('notebook_id', notebook_id);
+    // Generate quiz using Gemini
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    if (notesError || !notes || notes.length === 0) {
-      return NextResponse.json(
-        { error: 'No notes found in this notebook' },
-        { status: 400 }
-      );
-    }
+    const prompt = `Generate a multiple-choice quiz on the topic: "${topic}" with ${questionCount} questions at ${difficulty} difficulty level.
 
-    // Combine notes content
-    const combinedContent = notes
-      .map(note => `## ${note.title}\n${note.content}`)
-      .join('\n\n');
+Format the response as a valid JSON array with this structure:
+[
+  {
+    "question": "Question text",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correctAnswer": 0,
+    "explanation": "Brief explanation of the correct answer"
+  }
+]
 
-    // Generate quiz using OpenAI
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPTS.QUIZ_GENERATOR },
-        { role: 'user', content: createQuizPrompt(combinedContent, num_questions, question_types) },
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
-    });
+Make sure the questions are clear, educational, and appropriate for the ${difficulty} level. For WAEC or JAMB standards, follow Nigerian curriculum standards.`;
 
-    const responseContent = completion.choices[0].message.content || '';
-    
-    // Parse the JSON response
-    let quizData;
-    try {
-      // Extract JSON from the response (in case there's extra text)
-      const jsonMatch = responseContent.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        quizData = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('No JSON found in response');
-      }
-    } catch (parseError) {
-      console.error('Failed to parse quiz JSON:', parseError);
-      return NextResponse.json(
-        { error: 'Failed to generate quiz format' },
-        { status: 500 }
-      );
-    }
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
 
-    // Get notebook title for quiz title
-    const { data: notebook } = await supabase
-      .from('notebooks')
-      .select('title')
-      .eq('id', notebook_id)
-      .single();
+    // Extract JSON from response
+    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    const questions = JSON.parse(text);
 
-    // Save quiz to database
-    const { data: quiz, error: quizError } = await supabase
-      .from('quizzes')
-      .insert({
-        notebook_id,
-        user_id: user.id,
-        title: `Quiz: ${notebook?.title || 'Study Session'}`,
-        questions: quizData.questions,
-      })
-      .select()
-      .single();
+    // Generate a simple quiz ID
+    const quizId = `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    if (quizError) {
-      throw quizError;
-    }
-
-    return NextResponse.json({ quiz });
-  } catch (error) {
+    return NextResponse.json({ quizId, questions });
+  } catch (error: any) {
     console.error('Quiz generation error:', error);
     return NextResponse.json(
-      { error: 'Failed to generate quiz' },
+      { error: 'Failed to generate quiz', details: error.message },
       { status: 500 }
     );
   }
 }
-
-// Submit quiz answers
-export async function PUT(request: NextRequest) {
-  try {
-    const supabase = createServerSupabaseClient();
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
