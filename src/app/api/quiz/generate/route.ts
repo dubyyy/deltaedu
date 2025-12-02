@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate quiz using Gemini
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
     const prompt = `Generate a multiple-choice quiz on the topic: "${topic}" with ${questionCount} questions at ${difficulty} difficulty level.
 
