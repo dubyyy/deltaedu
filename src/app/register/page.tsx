@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sparkles, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -35,33 +36,31 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          fullName: formData.fullName,
-        }),
+      const supabase = createClient();
+
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+          },
+        },
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Registration failed');
+      if (signUpError) {
+        throw new Error(signUpError.message);
       }
 
-      // Store user data with full_name extracted from user_metadata
-      if (typeof window !== 'undefined' && data.user) {
-        const userData = {
-          ...data.user,
-          full_name: data.user.user_metadata?.full_name || null,
-        };
-        localStorage.setItem('user', JSON.stringify(userData));
+      if (!data.session) {
+        // Email confirmation might be required
+        setError('Registration successful! Please check your email for confirmation.');
+        return;
       }
 
-      // Redirect to dashboard
+      // Redirect to dashboard - session is stored in cookies automatically
       router.push('/dashboard');
+      router.refresh();
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {

@@ -17,6 +17,7 @@ import {
   Clock,
   TrendingUp,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 interface DashboardStats {
   totalNotes: number;
@@ -48,14 +49,16 @@ export default function DashboardPage() {
     // Check if user is logged in and fetch stats
     const checkAuth = async () => {
       try {
-        // For now, we'll use localStorage
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          setUser(userData);
+        const supabase = createClient();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          setUser(session.user);
           // Fetch dashboard stats and activities
-          await fetchDashboardStats(userData.id);
-          await fetchRecentActivities(userData.id);
+          await fetchDashboardStats(session.user.id);
+          await fetchRecentActivities(session.user.id);
         } else {
           router.push('/login');
         }
@@ -100,9 +103,10 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      localStorage.removeItem('user');
+      const supabase = createClient();
+      await supabase.auth.signOut();
       router.push('/');
+      router.refresh();
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -170,7 +174,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
-            Welcome back, {user?.full_name || user?.email?.split('@')[0] || 'Student'}!
+            Welcome back, {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'}!
           </h1>
           <p className="text-muted-foreground">
             Ready to continue your learning journey?
