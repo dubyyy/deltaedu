@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    // Use gemini-1.5-flash as gemini-pro is deprecated
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const lastMessage = messages[messages.length - 1];
     const conversationHistory = messages
