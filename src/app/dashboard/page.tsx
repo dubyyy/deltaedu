@@ -71,13 +71,29 @@ export default function DashboardPage() {
     };
 
     checkAuth();
-  }, [router]);
+
+    // Refresh stats when returning to the page
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        fetchDashboardStats(user.id);
+        fetchRecentActivities(user.id);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [router, user]);
 
   const fetchDashboardStats = async (userId: string) => {
     try {
-      const res = await fetch(`/api/dashboard/stats?userId=${userId}`);
+      // Add cache busting to ensure fresh data
+      const res = await fetch(`/api/dashboard/stats?userId=${userId}&_t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json();
+        console.log('[Dashboard] Stats updated:', data.stats);
         setStats(data.stats);
       } else {
         console.error('Failed to fetch dashboard stats');
