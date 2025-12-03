@@ -1,6 +1,6 @@
 # DeltaEDU - AI-Powered Educational Platform
 
-An intelligent learning platform built for Delta State students that transforms study materials into interactive learning experiences using AI.
+An intelligent learning platform built for Delta State students and tech beginners that transforms study materials into interactive learning experiences using AI. Whether you're preparing for WAEC/NECO/JAMB exams or learning programming skills like JavaScript, HTML, CSS, and more - DeltaEDU has you covered.
 
 ## 🌐 Live Demo
 
@@ -11,10 +11,12 @@ The platform is deployed and accessible at: https://deltaedu-starter.vercel.app/
 ## 🌟 Features
 
 - **Smart Note Upload**: Upload PDFs, Word documents, or text files
-- **AI Tutor**: Chat with an AI tutor powered by Google Gemini
+- **AI Tutor**: Chat with an AI tutor that helps with both academic subjects and programming concepts
 - **Auto Quiz Generation**: Generate practice quizzes from your study materials
 - **Study Progress Tracking**: Monitor your learning journey
-- **WAEC/JAMB Preparation**: Specialized quiz formats for Nigerian exams
+- **Exam Preparation**: Specialized quiz formats for WAEC/NECO/JAMB exams
+- **Tech Skills Learning**: Learn programming from scratch - JavaScript, HTML, CSS, Python, and more
+- **Beginner-Friendly**: Start learning tech at any age with simple, clear explanations
 - **Beautiful UI**: Modern, responsive design with Tailwind CSS
 
 ## 🚀 Tech Stack
@@ -103,4 +105,4 @@ MIT License - feel free to use this project for your educational needs!
 
 ---
 
-Built with ❤️ for Delta State students • Delta Tech Week Hackathon 2025
+Built with ❤️ for Delta State students and tech enthusiasts • Delta Tech Week Hackathon 2025

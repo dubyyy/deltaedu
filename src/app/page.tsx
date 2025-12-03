@@ -52,9 +52,9 @@ export default function HomePage() {
             <span className="text-primary"> Interactive Learning</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl">
-            Upload your study materials and let AI create personalized quizzes, 
-            summaries, and tutoring sessions. Prepare smarter for WAEC, NECO, 
-            and JAMB.
+            Upload your study materials and let AI create personalized quizzes,
+            summaries, and tutoring sessions. Whether you're preparing for WAEC, NECO,
+            JAMB exams or learning tech skills like JavaScript, HTML, CSS, and more - we've got you covered.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
@@ -100,7 +100,7 @@ export default function HomePage() {
             Everything You Need to Excel
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Powerful AI-driven features designed specifically for Nigerian students
+            Powerful AI-driven features for exam prep and tech learning - designed for Delta State students and beyond
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -123,7 +123,7 @@ export default function HomePage() {
             {
               icon: CheckCircle,
               title: 'Auto Quizzes',
-              description: 'Generate practice quizzes in WAEC/JAMB format to test your understanding.',
+              description: 'Generate practice quizzes in WAEC/JAMB format or test your tech skills with coding challenges.',
             },
             {
               icon: Trophy,
@@ -198,8 +198,8 @@ export default function HomePage() {
             Ready to Transform Your Learning?
           </h2>
           <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-            Join hundreds of Delta State students who are already studying smarter 
-            with DeltaEDU. It's completely free to get started.
+            Join hundreds of Delta State students and tech enthusiasts who are already learning smarter
+            with DeltaEDU. Master your exams and coding skills - it's completely free to get started.
           </p>
           <Link
             href="/register"

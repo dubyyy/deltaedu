@@ -105,7 +105,7 @@ export default function GenerateQuizPage() {
               type="text"
               required
               className="w-full px-4 py-2 border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="e.g., Biology: Cell Structure, Mathematics: Algebra"
+              placeholder="e.g., Biology: Cell Structure, JavaScript Basics, HTML & CSS"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
             />
@@ -125,10 +125,12 @@ export default function GenerateQuizPage() {
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
             >
+              <option value="beginner">Beginner - Just starting out</option>
               <option value="easy">Easy - Basic concepts</option>
               <option value="medium">Medium - Standard level</option>
               <option value="hard">Hard - Advanced level</option>
               <option value="waec">WAEC Standard</option>
+              <option value="neco">NECO Standard</option>
               <option value="jamb">JAMB Standard</option>
             </select>
           </div>
@@ -187,10 +189,14 @@ export default function GenerateQuizPage() {
             <Sparkles className="h-5 w-5 text-primary mt-0.5" />
             <div>
               <h3 className="font-semibold mb-1">AI-Powered Quizzes</h3>
-              <p className="text-sm text-muted-foreground">
-                Our AI generates unique questions tailored to your topic. Each quiz
-                is designed to test your understanding and help you identify areas
-                for improvement.
+              <p className="text-sm text-muted-foreground mb-2">
+                Our AI generates unique questions tailored to your topic. Whether you're
+                studying for exams or learning programming, each quiz is designed to test
+                your understanding and help you identify areas for improvement.
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                <strong>Examples:</strong> "JavaScript Arrays & Objects", "WAEC Chemistry: Organic Compounds",
+                "HTML Forms & Validation", "JAMB Mathematics: Quadratic Equations"
               </p>
             </div>
           </div>

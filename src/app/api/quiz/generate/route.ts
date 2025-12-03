@@ -30,10 +30,11 @@ Format the response as a valid JSON array with this EXACT structure:
 
 REQUIREMENTS:
 - Make questions clear, educational, and appropriate for ${difficulty} level
-- For WAEC or JAMB standards, follow Nigerian curriculum standards
+- For WAEC, NECO, or JAMB standards, follow Nigerian curriculum standards
+- For tech/programming topics (JavaScript, HTML, CSS, Python, etc.), create practical coding questions that test understanding of concepts
 - correctAnswer must be the index (0-3) of the correct option
 - Include 4 options for each question
-- Provide a brief explanation for each answer
+- Provide a brief explanation for each answer that helps reinforce learning
 
 CRITICAL: Return ONLY the JSON array with no markdown formatting, no \`\`\`json\`\`\`, no additional text.`;
 
