@@ -4,6 +4,9 @@ import { createAdminClient } from '@/lib/supabase/server';
 import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 
+// Use Node.js runtime for pdf-parse and mammoth compatibility
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
