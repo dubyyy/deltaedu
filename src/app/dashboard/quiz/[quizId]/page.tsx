@@ -15,6 +15,7 @@ import {
   RotateCcw,
   BookOpen,
 } from 'lucide-react';
+import { useStudyTimeTracker } from '@/hooks/useStudyTimeTracker';
 
 interface QuizQuestion {
   question: string;
@@ -42,6 +43,15 @@ export default function QuizTakingPage() {
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Track study time
+  useStudyTimeTracker({
+    userId,
+    pageType: 'quiz',
+    noteId: undefined,
+    enabled: !loading && !!quizData && !showResults,
+  });
 
   useEffect(() => {
     loadQuizData();
@@ -49,6 +59,13 @@ export default function QuizTakingPage() {
 
   const loadQuizData = async () => {
     try {
+      // Get user ID for tracking
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setUserId(user.id);
+      }
+
       // Try localStorage first (for quizzes not saved to database)
       const localQuiz = localStorage.getItem(`quiz_${params.quizId}`);
       if (localQuiz) {

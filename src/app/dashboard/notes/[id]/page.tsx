@@ -14,6 +14,7 @@ import {
   BookOpen,
   Brain,
 } from 'lucide-react';
+import { useStudyTimeTracker } from '@/hooks/useStudyTimeTracker';
 
 interface Note {
   id: string;
@@ -30,6 +31,15 @@ export default function NoteDetailPage() {
   const [summary, setSummary] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [summarizing, setSummarizing] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Track study time
+  useStudyTimeTracker({
+    userId,
+    pageType: 'notes',
+    noteId: params.id as string,
+    enabled: !loading && !!note,
+  });
 
   useEffect(() => {
     fetchNoteDetails();
@@ -44,6 +54,8 @@ export default function NoteDetailPage() {
       }
 
       const user = JSON.parse(userStr);
+      setUserId(user.id); // Set userId for study tracking
+
       const res = await fetch(`/api/notes/${params.id}?userId=${user.id}`);
 
       if (res.ok) {

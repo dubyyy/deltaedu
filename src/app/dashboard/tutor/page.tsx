@@ -12,6 +12,7 @@ import {
   User,
   Loader2,
 } from 'lucide-react';
+import { useStudyTimeTracker } from '@/hooks/useStudyTimeTracker';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -33,7 +34,25 @@ export default function TutorPage() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Track study time
+  useStudyTimeTracker({
+    userId,
+    pageType: 'tutor',
+    noteId: noteId || undefined,
+    enabled: !!userId,
+  });
+
+  useEffect(() => {
+    // Get user ID for tracking
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      setUserId(user.id);
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
