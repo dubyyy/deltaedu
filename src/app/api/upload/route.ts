@@ -3,10 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import Groq from 'groq-sdk';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY || '',
-});
-
 // Dynamic import for pdf-parse to handle edge runtime issues
 async function extractPdfText(buffer: Buffer): Promise<string> {
   const pdfParse = (await import('pdf-parse')).default;
@@ -96,22 +92,29 @@ export async function POST(request: NextRequest) {
     // Generate summary using Groq AI
     let summary = '';
     try {
-      const completion = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert summarizer. Create concise, accurate summaries of study materials that highlight key points and main ideas.'
-          },
-          {
-            role: 'user',
-            content: `Summarize the following study material in 2-3 concise paragraphs:\n\n${extractedText.slice(0, 8000)}`
-          },
-        ],
-        temperature: 0.5,
-        max_tokens: 500,
-      });
-      summary = completion.choices[0]?.message?.content || '';
+      const apiKey = process.env.GROQ_API_KEY;
+      if (!apiKey) {
+        console.error('GROQ_API_KEY is not set - skipping summary generation');
+        // Continue without summary
+      } else {
+        const groq = new Groq({ apiKey });
+        const completion = await groq.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert summarizer. Create concise, accurate summaries of study materials that highlight key points and main ideas.'
+            },
+            {
+              role: 'user',
+              content: `Summarize the following study material in 2-3 concise paragraphs:\n\n${extractedText.slice(0, 8000)}`
+            },
+          ],
+          temperature: 0.5,
+          max_tokens: 500,
+        });
+        summary = completion.choices[0]?.message?.content || '';
+      }
     } catch (aiError) {
       console.error('Summary generation error:', aiError);
       // Continue without summary
@@ -172,22 +175,29 @@ export async function PUT(request: NextRequest) {
     // Generate summary using Groq AI
     let summary = '';
     try {
-      const completion = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert summarizer. Create concise, accurate summaries of study materials that highlight key points and main ideas.'
-          },
-          {
-            role: 'user',
-            content: `Summarize the following study material in 2-3 concise paragraphs:\n\n${content.slice(0, 8000)}`
-          },
-        ],
-        temperature: 0.5,
-        max_tokens: 500,
-      });
-      summary = completion.choices[0]?.message?.content || '';
+      const apiKey = process.env.GROQ_API_KEY;
+      if (!apiKey) {
+        console.error('GROQ_API_KEY is not set - skipping summary generation');
+        // Continue without summary
+      } else {
+        const groq = new Groq({ apiKey });
+        const completion = await groq.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert summarizer. Create concise, accurate summaries of study materials that highlight key points and main ideas.'
+            },
+            {
+              role: 'user',
+              content: `Summarize the following study material in 2-3 concise paragraphs:\n\n${content.slice(0, 8000)}`
+            },
+          ],
+          temperature: 0.5,
+          max_tokens: 500,
+        });
+        summary = completion.choices[0]?.message?.content || '';
+      }
     } catch (aiError) {
       console.error('Summary generation error:', aiError);
     }

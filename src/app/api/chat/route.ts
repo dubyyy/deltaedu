@@ -3,12 +3,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 import { createAdminClient } from '@/lib/supabase/server';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY || '',
-});
-
 export async function POST(request: NextRequest) {
   try {
+    // Check if Groq API key is available
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      console.error('GROQ_API_KEY is not set');
+      return NextResponse.json(
+        { error: 'AI service not configured. Please contact support.' },
+        { status: 500 }
+      );
+    }
+
+    const groq = new Groq({ apiKey });
+
     const { messages, noteId, userId } = await request.json();
 
     if (!messages || messages.length === 0) {
