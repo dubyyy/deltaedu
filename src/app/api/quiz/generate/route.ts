@@ -1,7 +1,7 @@
 // src/app/api/quiz/generate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
 import { createAdminClient } from '@/lib/supabase/server';
+import { createGroqChatCompletion } from '@/lib/groq-client';
 
 // Use Node.js runtime instead of Edge runtime
 export const runtime = 'nodejs';
@@ -17,11 +17,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    const groq = new Groq({
-      apiKey,
-      dangerouslyAllowBrowser: false,
-    });
 
     const body = await request.json();
     const { topic, difficulty, questionCount, userId } = body;
@@ -52,8 +47,8 @@ REQUIREMENTS:
 
 CRITICAL: Return ONLY the JSON array with no markdown formatting, no \`\`\`json\`\`\`, no additional text.`;
 
-    // Use llama-3.3-70b-versatile (FREE and powerful)
-    const completion = await groq.chat.completions.create({
+    // Use fetch-based Groq client for better Vercel compatibility
+    const completion = await createGroqChatCompletion(apiKey, {
       model: 'llama-3.3-70b-versatile',
       messages: [
         {

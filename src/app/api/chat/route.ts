@@ -1,7 +1,7 @@
 // src/app/api/chat/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
 import { createAdminClient } from '@/lib/supabase/server';
+import { createGroqChatCompletion } from '@/lib/groq-client';
 
 // Use Node.js runtime instead of Edge runtime
 export const runtime = 'nodejs';
@@ -17,8 +17,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    const groq = new Groq({ apiKey });
 
     const { messages, noteId, userId } = await request.json();
 
@@ -85,14 +83,13 @@ Be supportive, motivational, and adapt your teaching style to the subject matter
       })),
     ];
 
-    // Use llama-3.3-70b-versatile (FREE, powerful, and fast)
-    const completion = await groq.chat.completions.create({
+    // Use fetch-based Groq client for better Vercel compatibility
+    const completion = await createGroqChatCompletion(apiKey, {
       model: 'llama-3.3-70b-versatile',
-      messages: formattedMessages,
+      messages: formattedMessages as any,
       temperature: 0.7,
       max_tokens: 2048,
       top_p: 1,
-      stream: false,
     });
 
     const text = completion.choices[0]?.message?.content || 'No response generated';
