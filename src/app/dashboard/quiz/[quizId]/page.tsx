@@ -47,17 +47,25 @@ export default function QuizTakingPage() {
     loadQuizData();
   }, []);
 
-  const loadQuizData = () => {
+  const loadQuizData = async () => {
     try {
-      // Get quiz data from localStorage
-      const storedQuiz = localStorage.getItem(`quiz_${params.quizId}`);
-
-      if (!storedQuiz) {
-        router.push('/dashboard/quiz/generate');
+      // Try localStorage first (for quizzes not saved to database)
+      const localQuiz = localStorage.getItem(`quiz_${params.quizId}`);
+      if (localQuiz) {
+        const quiz = JSON.parse(localQuiz);
+        setQuizData(quiz);
+        setLoading(false);
         return;
       }
 
-      const quiz = JSON.parse(storedQuiz);
+      // Fallback: Try to fetch from API
+      const res = await fetch(`/api/quiz/${params.quizId}`);
+
+      if (!res.ok) {
+        throw new Error('Quiz not found');
+      }
+
+      const quiz = await res.json();
       setQuizData(quiz);
     } catch (error) {
       console.error('Failed to load quiz:', error);

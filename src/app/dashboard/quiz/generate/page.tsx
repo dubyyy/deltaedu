@@ -1,7 +1,7 @@
 // src/app/dashboard/quiz/generate/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -11,6 +11,7 @@ import {
   Loader2,
   CheckCircle,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function GenerateQuizPage() {
   const router = useRouter();
@@ -18,6 +19,18 @@ export default function GenerateQuizPage() {
   const [difficulty, setDifficulty] = useState('medium');
   const [questionCount, setQuestionCount] = useState(10);
   const [generating, setGenerating] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUserId(session.user.id);
+      }
+    };
+    getUser();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +44,7 @@ export default function GenerateQuizPage() {
           topic,
           difficulty,
           questionCount,
+          userId,
         }),
       });
 
@@ -38,7 +52,7 @@ export default function GenerateQuizPage() {
 
       const data = await res.json();
 
-      // Store quiz data in localStorage for the quiz page to access
+      // Store quiz data in localStorage as fallback
       localStorage.setItem(`quiz_${data.quizId}`, JSON.stringify(data));
 
       // Redirect to quiz taking page

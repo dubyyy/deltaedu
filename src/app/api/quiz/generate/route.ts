@@ -1,6 +1,7 @@
 // src/app/api/quiz/generate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
+import { createAdminClient } from '@/lib/supabase/server';
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || '',
@@ -9,7 +10,7 @@ const groq = new Groq({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { topic, difficulty, questionCount } = body;
+    const { topic, difficulty, questionCount, userId } = body;
 
     if (!topic) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
@@ -72,7 +73,43 @@ CRITICAL: Return ONLY the JSON array with no markdown formatting, no \`\`\`json\
       throw new Error('Invalid questions format');
     }
 
-    // Generate a simple quiz ID
+    // Try to save quiz to database if userId is provided
+    if (userId) {
+      try {
+        const supabase = createAdminClient();
+
+        const { data: quiz, error: quizError } = await supabase
+          .from('quizzes')
+          .insert({
+            user_id: userId,
+            topic,
+            difficulty,
+            question_count: questionCount,
+            questions,
+          })
+          .select()
+          .single();
+
+        if (quizError) {
+          console.error('Error saving quiz (non-fatal):', quizError);
+          // Don't fail - fall through to generated ID
+        } else if (quiz) {
+          // Successfully saved to database
+          return NextResponse.json({
+            quizId: quiz.id,
+            questions,
+            topic,
+            difficulty,
+            questionCount,
+          });
+        }
+      } catch (dbError) {
+        console.error('Database save failed (non-fatal):', dbError);
+        // Continue with fallback
+      }
+    }
+
+    // Fallback to generated ID (works without database)
     const quizId = `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     return NextResponse.json({
