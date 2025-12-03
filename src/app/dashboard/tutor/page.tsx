@@ -4,6 +4,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import {
   Sparkles,
   ArrowLeft,
@@ -95,6 +96,7 @@ export default function TutorPage() {
       ]);
     } catch (error) {
       console.error('Chat error:', error);
+      toast.error('Failed to get response from AI tutor. Please try again.');
       setMessages((prev) => [
         ...prev,
         {

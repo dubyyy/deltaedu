@@ -4,6 +4,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import {
   Upload,
@@ -74,13 +75,14 @@ export default function UploadNotesPage() {
         throw new Error('Upload failed');
       }
 
+      toast.success('Notes uploaded successfully!');
       setSuccess(true);
       setTimeout(() => {
         router.push('/dashboard/notes');
       }, 2000);
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload notes. Please try again.');
+      toast.error('Failed to upload notes. Please try again.');
     } finally {
       setUploading(false);
     }

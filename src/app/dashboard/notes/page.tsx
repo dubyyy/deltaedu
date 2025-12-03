@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import {
   FileText,
   Sparkles,
@@ -43,9 +44,12 @@ export default function NotesPage() {
       if (res.ok) {
         const data = await res.json();
         setNotes(data.notes || []);
+      } else {
+        toast.error('Failed to load notes. Please try again.');
       }
     } catch (error) {
       console.error('Failed to fetch notes:', error);
+      toast.error('Failed to load notes. Please try again.');
     } finally {
       setLoading(false);
     }
