@@ -71,8 +71,11 @@ export default function UploadNotesPage() {
         body: formData,
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error('Upload failed');
+        console.error('Upload failed:', data);
+        throw new Error(data.details || data.error || 'Upload failed');
       }
 
       toast.success('Notes uploaded successfully!');
