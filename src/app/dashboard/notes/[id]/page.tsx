@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 import {
   ArrowLeft,
   Sparkles,
@@ -42,21 +43,25 @@ export default function NoteDetailPage() {
   });
 
   useEffect(() => {
-    fetchNoteDetails();
-  }, []);
+    async function initializePage() {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
 
-  const fetchNoteDetails = async () => {
-    try {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
+      if (!session) {
         router.push('/login');
         return;
       }
 
-      const user = JSON.parse(userStr);
-      setUserId(user.id); // Set userId for study tracking
+      setUserId(session.user.id);
+      await fetchNoteDetails(session.user.id);
+    }
 
-      const res = await fetch(`/api/notes/${params.id}?userId=${user.id}`);
+    initializePage();
+  }, [params.id, router]);
+
+  const fetchNoteDetails = async (userIdParam: string) => {
+    try {
+      const res = await fetch(`/api/notes/${params.id}?userId=${userIdParam}`);
 
       if (res.ok) {
         const data = await res.json();
