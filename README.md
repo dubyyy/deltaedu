@@ -2,6 +2,12 @@
 
 An intelligent learning platform built for Delta State students that transforms study materials into interactive learning experiences using AI.
 
+## 🌐 Live Demo
+
+**[View Live Application](https://deltaedu-starter.vercel.app/)**
+
+The platform is deployed and accessible at: https://deltaedu-starter.vercel.app/
+
 ## 🌟 Features
 
 - **Smart Note Upload**: Upload PDFs, Word documents, or text files
