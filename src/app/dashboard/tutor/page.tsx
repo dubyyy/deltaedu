@@ -15,6 +15,9 @@ import {
 } from 'lucide-react';
 import { useStudyTimeTracker } from '@/hooks/useStudyTimeTracker';
 
+// Force dynamic rendering to avoid SSG issues with localStorage
+export const dynamic = 'force-dynamic';
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;

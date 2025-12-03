@@ -37,7 +37,12 @@ export async function generateChatCompletion(
     return response;
   }
 
-  return response.choices[0].message.content;
+  // Type guard to ensure we have a ChatCompletion response
+  if ('choices' in response) {
+    return response.choices[0].message.content;
+  }
+
+  throw new Error('Unexpected response format from OpenAI');
 }
 
 // Helper for streaming responses
